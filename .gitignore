@@ -1,0 +1,15 @@
+node_modules
+.next
+out
+build
+# env / secrets — never commit (keep only the example)
+.env
+.env.*
+!.env.local.example
+.DS_Store
+*.log
+.firebase
+serviceAccountKey.json
+*.pem
+*-service-account.json
+google-credentials*.json

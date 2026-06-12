@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  build-and-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Payment webhook smoke test
+        env:
+          # Dummy keys so the webhook route is "configured"; the smoke test signs
+          # its own payload with this secret. No real Razorpay credentials needed.
+          RAZORPAY_WEBHOOK_SECRET: testsecret
+          RAZORPAY_KEY_ID: rzp_test_ci
+          RAZORPAY_KEY_SECRET: ci_secret
+        run: |
+          npm run start >/tmp/server.log 2>&1 &
+          for i in $(seq 1 30); do
+            if curl -sf -o /dev/null http://127.0.0.1:3002/; then echo "ready"; break; fi
+            sleep 1
+          done
+          RAZORPAY_WEBHOOK_SECRET=testsecret BASE_URL=http://127.0.0.1:3002 npm run smoke:pay
+          kill %1 || true

@@ -1,0 +1,37 @@
+{
+  "name": "marketing-skills-tool",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Upload a GitHub repo + domain, get a full marketing deliverable suite powered by Claude marketing skills.",
+  "scripts": {
+    "dev": "next dev -p 3002",
+    "build": "next build",
+    "start": "next start -p 3002",
+    "lint": "next lint",
+    "smoke:pay": "node scripts/smoke-razorpay.mjs"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.65.0",
+    "@octokit/rest": "^21.1.1",
+    "cheerio": "^1.0.0",
+    "firebase": "^11.10.0",
+    "firebase-admin": "^13.4.0",
+    "framer-motion": "^12.23.0",
+    "gsap": "^3.13.0",
+    "jszip": "^3.10.1",
+    "lenis": "^1.3.4",
+    "next": "^15.3.5",
+    "react": "^19.1.0",
+    "react-countup": "^6.5.3",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.8.3"
+  }
+}
