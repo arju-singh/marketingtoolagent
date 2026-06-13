@@ -11,7 +11,15 @@ export const supabaseEnabled = Boolean(url && anon);
 let client: SupabaseClient | null = null;
 export function getSupabase(): SupabaseClient | null {
   if (!supabaseEnabled) return null;
-  if (!client) client = createClient(url!, anon!);
+  if (!client)
+    client = createClient(url!, anon!, {
+      auth: {
+        flowType: "pkce", // secure OAuth for SPAs: returns ?code=, exchanged on return
+        detectSessionInUrl: true, // auto-handle the OAuth redirect back to /app
+        persistSession: true,
+        autoRefreshToken: true,
+      },
+    });
   return client;
 }
 
