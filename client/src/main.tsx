@@ -6,6 +6,7 @@ import "./globals.css";
 import { AuthProvider } from "@/lib/auth";
 import SmoothScroll from "@/components/SmoothScroll";
 import ThemeToggle from "@/components/ThemeToggle";
+import AuthToast from "@/components/AuthToast";
 
 // Each route is its own chunk: the landing (GSAP scroll-story) and the tool/runs
 // pages load independently, so opening /app doesn't pull in the whole landing.
@@ -35,6 +36,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
           </Suspense>
         </SmoothScroll>
         <ThemeToggle />
+        <AuthToast />
       </AuthProvider>
     </BrowserRouter>
   </React.StrictMode>
