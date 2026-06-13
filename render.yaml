@@ -1,0 +1,40 @@
+# Render Blueprint — deploys the Express API in server/.
+# render.com → Blueprints → New → connect this repo. Render reads this file,
+# then prompts you to fill the `sync: false` secrets in the dashboard (never in git).
+#
+# The static client (client/) deploys separately (Vercel/Netlify/Pages) — see README.
+services:
+  - type: web
+    name: marketstack-api
+    runtime: node
+    rootDir: server
+    plan: free
+    region: singapore # closest to an Asia-Pacific Supabase project
+    buildCommand: npm install
+    startCommand: npm start # tsx src/index.ts
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      # Non-secret config
+      - key: ANTHROPIC_MODEL
+        value: claude-mythos-5
+      # Secrets — set these in the Render dashboard (sync:false keeps them out of git)
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: GITHUB_TOKEN
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+      - key: RAZORPAY_WEBHOOK_SECRET
+        sync: false
+      # CORS — set to your deployed client origin, e.g. https://marketstack.vercel.app
+      - key: CLIENT_ORIGIN
+        sync: false

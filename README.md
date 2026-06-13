@@ -96,7 +96,7 @@ Everything runs in **demo mode with zero keys** (simulated payments, client-only
 
 **4. Deploy (two targets)**
 - **Client** (static SPA) → Vercel/Netlify/Cloudflare Pages. Set root dir to `client`, build `npm run build`, output `dist`. Add `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, and `VITE_API_BASE=https://your-api-host`.
-- **Server** (Node) → Render/Railway/Fly/any Node host. Start `npm start`, port from `PORT`. Add the server secrets: `ANTHROPIC_API_KEY`, `ANTHROPIC_MODEL`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `RAZORPAY_*`, `GITHUB_TOKEN`, and `CLIENT_ORIGIN=https://your-client-host` (for CORS).
+- **Server** (Node) → **Render one-click**: a `render.yaml` Blueprint is included — at render.com → **Blueprints → New**, connect this repo and Render provisions the `server/` web service, then prompts you to fill the `sync: false` secrets (`ANTHROPIC_API_KEY`, `SUPABASE_*`, `RAZORPAY_*`, `GITHUB_TOKEN`, `CLIENT_ORIGIN`). Health check is `/api/health`. (Or any Node host: `npm start`, port from `PORT`.)
 - Point the **Razorpay webhook** at `https://your-api-host/api/payments/webhook`.
 - Add `https://your-client-host` (and `…/app`) to **Supabase → Authentication → URL Configuration** redirect allow-list.
 
