@@ -2,6 +2,8 @@
   "name": "marketing-skills-tool",
   "version": "0.1.0",
   "private": true,
+  "license": "MIT",
+  "author": "Arju Singh",
   "description": "Upload a GitHub repo + domain, get a full marketing deliverable suite powered by Claude marketing skills.",
   "scripts": {
     "dev": "next dev -p 3002",
