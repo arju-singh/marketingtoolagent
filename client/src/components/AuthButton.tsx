@@ -1,8 +1,20 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
 
 export default function AuthButton() {
   const { user, enabled, loading, signIn, logout } = useAuth();
+  const [busy, setBusy] = useState(false);
+
+  // signIn() redirects the whole page to Google; show a spinner during the kickoff.
+  const handleSignIn = async () => {
+    setBusy(true);
+    try {
+      await signIn();
+    } catch {
+      setBusy(false);
+    }
+  };
 
   // Hide entirely when Supabase isn't configured — the tool still works without it.
   if (!enabled) return null;
@@ -21,8 +33,15 @@ export default function AuthButton() {
   }
 
   return (
-    <button onClick={signIn} className="btn-ghost !py-2 !text-sm">
-      Sign in with Google
+    <button onClick={handleSignIn} disabled={busy} className="btn-ghost !py-2 !text-sm disabled:opacity-60">
+      {busy ? (
+        <>
+          <span className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+          Redirecting…
+        </>
+      ) : (
+        "Sign in with Google"
+      )}
     </button>
   );
 }

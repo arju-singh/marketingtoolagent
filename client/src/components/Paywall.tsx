@@ -32,7 +32,17 @@ function loadRazorpay(): Promise<boolean> {
 export default function Paywall({ onPaid, onClose }: { onPaid: (tier: Tier) => void; onClose: () => void }) {
   const [paying, setPaying] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [signingIn, setSigningIn] = useState(false);
   const { user, enabled: authEnabled, signIn, token } = useAuth();
+
+  const handleSignIn = async () => {
+    setSigningIn(true);
+    try {
+      await signIn();
+    } catch {
+      setSigningIn(false);
+    }
+  };
   // When Supabase is on, require sign-in so the plan is attributed to a real user.
   const needSignIn = authEnabled && !user;
 
@@ -125,7 +135,16 @@ export default function Paywall({ onPaid, onClose }: { onPaid: (tier: Tier) => v
             <p className="mt-2 text-sm text-white/55">
               So your plan stays with your account across devices, sign in before paying.
             </p>
-            <button onClick={() => signIn()} className="btn-primary mt-6">Sign in with Google</button>
+            <button onClick={handleSignIn} disabled={signingIn} className="btn-primary mt-6 disabled:opacity-60">
+              {signingIn ? (
+                <>
+                  <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                  Redirecting…
+                </>
+              ) : (
+                "Sign in with Google"
+              )}
+            </button>
           </div>
         ) : (
         <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-3">
