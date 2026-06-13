@@ -14,26 +14,29 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
-          cache: npm
 
-      - name: Install
-        run: npm ci
+      - name: Install client
+        run: npm --prefix client ci || npm --prefix client install
 
-      - name: Build
-        run: npm run build
+      - name: Install server
+        run: npm --prefix server ci || npm --prefix server install
+
+      - name: Typecheck + build client
+        run: npm --prefix client run build
+
+      - name: Typecheck server
+        run: npm --prefix server run typecheck
 
       - name: Payment webhook smoke test
         env:
-          # Dummy keys so the webhook route is "configured"; the smoke test signs
-          # its own payload with this secret. No real Razorpay credentials needed.
           RAZORPAY_WEBHOOK_SECRET: testsecret
           RAZORPAY_KEY_ID: rzp_test_ci
           RAZORPAY_KEY_SECRET: ci_secret
         run: |
-          npm run start >/tmp/server.log 2>&1 &
+          npm --prefix server start >/tmp/server.log 2>&1 &
           for i in $(seq 1 30); do
-            if curl -sf -o /dev/null http://127.0.0.1:3002/; then echo "ready"; break; fi
+            if curl -sf -o /dev/null http://127.0.0.1:8787/api/health; then echo "ready"; break; fi
             sleep 1
           done
-          RAZORPAY_WEBHOOK_SECRET=testsecret BASE_URL=http://127.0.0.1:3002 npm run smoke:pay
+          RAZORPAY_WEBHOOK_SECRET=testsecret BASE_URL=http://127.0.0.1:8787 npm run smoke:pay
           kill %1 || true

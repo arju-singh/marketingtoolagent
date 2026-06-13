@@ -1,14 +1,17 @@
 node_modules
-.next
-out
+dist
+client/dist
 build
-# env / secrets — never commit (keep only the example)
+out
+
+# env / secrets — never commit (keep the *.example files)
 .env
 .env.*
-!.env.local.example
+!.env.example
+!*.env.example
+
 .DS_Store
 *.log
-.firebase
 serviceAccountKey.json
 *.pem
 *-service-account.json

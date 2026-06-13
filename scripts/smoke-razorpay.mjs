@@ -2,15 +2,15 @@
 // and plan-activation path without touching the real Razorpay API.
 //
 // Usage:
-//   RAZORPAY_WEBHOOK_SECRET=testsecret BASE_URL=http://127.0.0.1:3000 \
+//   RAZORPAY_WEBHOOK_SECRET=testsecret BASE_URL=http://127.0.0.1:8787 \
 //     node scripts/smoke-razorpay.mjs [uid] [tier]
 //
-// The dev server must be started with the SAME RAZORPAY_WEBHOOK_SECRET (plus dummy
+// The Express server must be started with the SAME RAZORPAY_WEBHOOK_SECRET (plus dummy
 // RAZORPAY_KEY_ID / RAZORPAY_KEY_SECRET so the route is "configured"):
-//   RAZORPAY_WEBHOOK_SECRET=testsecret RAZORPAY_KEY_ID=x RAZORPAY_KEY_SECRET=y npm run start
+//   RAZORPAY_WEBHOOK_SECRET=testsecret RAZORPAY_KEY_ID=x RAZORPAY_KEY_SECRET=y npm --prefix server start
 import crypto from "node:crypto";
 
-const BASE = process.env.BASE_URL || "http://127.0.0.1:3000";
+const BASE = process.env.BASE_URL || "http://127.0.0.1:8787";
 const SECRET = process.env.RAZORPAY_WEBHOOK_SECRET;
 const uid = process.argv[2] || "smoke-uid-123";
 const tier = process.argv[3] || "pro";

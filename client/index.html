@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MarketStack — your repo + domain → a full marketing suite</title>
+    <meta
+      name="description"
+      content="Paste a GitHub repo and a domain. Get CRO, SEO, copy, emails, ads, a launch plan and a 90-day marketing plan — an AI marketing agency powered by Claude."
+    />
+    <!-- Open Graph -->
+    <meta property="og:title" content="MarketStack — your repo + domain → a full marketing suite" />
+    <meta property="og:description" content="41+ Claude-powered marketing skills + a flagship agency audit. Paste a repo and a domain, ship marketing tonight." />
+    <meta property="og:image" content="/og.png" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <!-- Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <!-- Apply saved theme before paint -->
+    <script>
+      (function () {
+        try {
+          if (localStorage.getItem("ms_theme") === "light") document.documentElement.classList.add("light");
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body class="font-sans antialiased">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

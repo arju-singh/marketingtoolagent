@@ -25,9 +25,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
-      - name: Deploy to production
+      - name: Deploy client (static SPA) to production
         if: steps.gate.outputs.have == 'true'
-        run: npx --yes vercel deploy --prod --yes --token="${{ secrets.VERCEL_TOKEN }}"
+        run: npx --yes vercel deploy --prod --yes --cwd client --token="${{ secrets.VERCEL_TOKEN }}"
+        # The Express server deploys separately (Render/Railway/Fly) — see README.
       - name: Skipped
         if: steps.gate.outputs.have != 'true'
         run: echo "VERCEL_TOKEN not set — skipping deploy."
