@@ -1,10 +1,9 @@
 "use client";
 
 // Client-side entitlement is OPTIMISTIC UX only. The server (/api/generate*) is authoritative
-// when Firebase Admin is configured — it reads/increments runs and a plan is activated only by
-// the verified-payment route. The client never writes the authoritative plan to Firestore.
-import { doc, getDoc } from "firebase/firestore";
-import { getDb } from "./firebase";
+// when Supabase is configured — it reads/increments runs and activates a plan only via the
+// verified-payment route. The client never writes the authoritative plan.
+import { getSupabase } from "./supabase";
 import { FREE_RUNS } from "./pricing";
 
 const RUNS_KEY = "ms_runs";
@@ -39,16 +38,15 @@ export function setPlan(tier: string, _uid?: string | null) {
 
 /** Reflect the server's authoritative usage (plan + runs) into local state on sign-in. */
 export async function syncDown(uid: string) {
-  const db = getDb();
+  const sb = getSupabase();
   const store = ls();
-  if (!db || !store) return;
-  try {
-    const snap = await getDoc(doc(db, "users", uid, "meta", "usage"));
-    if (!snap.exists()) return;
-    const d = snap.data() as { runs?: number; plan?: string | null; planActive?: boolean };
-    store.setItem(RUNS_KEY, String(Math.max(getRuns(), d.runs || 0)));
-    if (d.planActive && d.plan) store.setItem(PLAN_KEY, d.plan);
-  } catch {
-    /* best-effort */
-  }
+  if (!sb || !store) return;
+  const { data, error } = await sb
+    .from("usage")
+    .select("runs, plan, plan_active")
+    .eq("user_id", uid)
+    .maybeSingle();
+  if (error || !data) return;
+  store.setItem(RUNS_KEY, String(Math.max(getRuns(), data.runs || 0)));
+  if (data.plan_active && data.plan) store.setItem(PLAN_KEY, data.plan);
 }

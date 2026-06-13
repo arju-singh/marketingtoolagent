@@ -6,7 +6,7 @@ import { useAuth } from "@/lib/auth";
 export default function AuthButton() {
   const { user, enabled, loading, signIn, logout } = useAuth();
 
-  // Hide entirely when Firebase isn't configured — the tool still works without it.
+  // Hide entirely when Supabase isn't configured — the tool still works without it.
   if (!enabled) return null;
   if (loading) return <span className="text-sm text-white/30">…</span>;
 
@@ -14,9 +14,9 @@ export default function AuthButton() {
     return (
       <div className="flex items-center gap-3 text-sm">
         <Link href="/runs" className="text-white/60 hover:text-white">My runs</Link>
-        {user.photoURL && (
+        {user.avatar && (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={user.photoURL} alt="" className="h-7 w-7 rounded-full" />
+          <img src={user.avatar} alt="" className="h-7 w-7 rounded-full" />
         )}
         <button onClick={logout} className="text-white/50 hover:text-white">Sign out</button>
       </div>

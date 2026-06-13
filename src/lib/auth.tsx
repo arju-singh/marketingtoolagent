@@ -1,15 +1,23 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import { onAuthStateChanged, signInWithPopup, signOut, type User } from "firebase/auth";
-import { getFirebaseAuth, googleProvider, firebaseEnabled } from "./firebase";
+import type { User } from "@supabase/supabase-js";
+import { getSupabase, supabaseEnabled, accessToken } from "./supabase";
+
+export interface AuthUser {
+  id: string;
+  email: string | null;
+  avatar: string | null;
+  name: string | null;
+}
 
 interface AuthCtx {
-  user: User | null;
+  user: AuthUser | null;
   loading: boolean;
   enabled: boolean;
   signIn: () => Promise<void>;
   logout: () => Promise<void>;
+  token: () => Promise<string | null>;
 }
 
 const Ctx = createContext<AuthCtx>({
@@ -18,37 +26,55 @@ const Ctx = createContext<AuthCtx>({
   enabled: false,
   signIn: async () => {},
   logout: async () => {},
+  token: async () => null,
 });
 
+function normalize(u: User | null | undefined): AuthUser | null {
+  if (!u) return null;
+  const m = u.user_metadata || {};
+  return {
+    id: u.id,
+    email: u.email ?? null,
+    avatar: (m.avatar_url as string) || (m.picture as string) || null,
+    name: (m.full_name as string) || (m.name as string) || null,
+  };
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const auth = getFirebaseAuth();
-    if (!auth) {
+    const sb = getSupabase();
+    if (!sb) {
       setLoading(false);
       return;
     }
-    return onAuthStateChanged(auth, (u) => {
-      setUser(u);
+    sb.auth.getSession().then(({ data }) => {
+      setUser(normalize(data.session?.user));
       setLoading(false);
     });
+    const { data: sub } = sb.auth.onAuthStateChange((_e, session) => {
+      setUser(normalize(session?.user));
+    });
+    return () => sub.subscription.unsubscribe();
   }, []);
 
   const signIn = async () => {
-    const auth = getFirebaseAuth();
-    if (!auth) return;
-    await signInWithPopup(auth, googleProvider);
+    const sb = getSupabase();
+    if (!sb) return;
+    await sb.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: typeof window !== "undefined" ? `${window.location.origin}/app` : undefined },
+    });
   };
 
   const logout = async () => {
-    const auth = getFirebaseAuth();
-    if (auth) await signOut(auth);
+    await getSupabase()?.auth.signOut();
   };
 
   return (
-    <Ctx.Provider value={{ user, loading, enabled: firebaseEnabled, signIn, logout }}>
+    <Ctx.Provider value={{ user, loading, enabled: supabaseEnabled, signIn, logout, token: accessToken }}>
       {children}
     </Ctx.Provider>
   );

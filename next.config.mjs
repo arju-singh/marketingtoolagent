@@ -1,8 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // The crawler + firebase-admin run server-side only.
-  serverExternalPackages: ["firebase-admin", "cheerio"],
+  // The crawler runs server-side only.
+  serverExternalPackages: ["cheerio"],
   images: {
     remotePatterns: [{ protocol: "https", hostname: "**" }],
   },

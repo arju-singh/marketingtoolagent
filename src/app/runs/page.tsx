@@ -17,7 +17,7 @@ export default function RunsPage() {
       setBusy(false);
       return;
     }
-    listRuns(user.uid)
+    listRuns(user.id)
       .then(setRuns)
       .finally(() => setBusy(false));
   }, [user]);
@@ -36,7 +36,7 @@ export default function RunsPage() {
         <h1 className="text-3xl font-bold">My runs</h1>
 
         {!enabled && (
-          <p className="mt-4 text-white/55">Firebase isn’t configured, so runs aren’t persisted. Add your Firebase env vars to enable history.</p>
+          <p className="mt-4 text-white/55">Supabase isn’t configured, so runs aren’t persisted. Add your Supabase env vars to enable history.</p>
         )}
         {enabled && !loading && !user && (
           <p className="mt-4 text-white/55">Sign in to see your saved marketing runs.</p>

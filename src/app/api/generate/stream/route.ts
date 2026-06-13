@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
     return Response.json({ error: "Select at least one skill, goal, or 'everything'." }, { status: 400 });
   }
 
-  // Authoritative paywall gate (active only when Firebase Admin is configured).
+  // Authoritative paywall gate (active only when the Supabase service role is configured).
   const ent = await checkEntitlement(req);
   if (ent.enforced && !ent.allowed) {
     return Response.json({ error: "Free run used. A plan is required to continue.", paywall: true }, { status: 402 });

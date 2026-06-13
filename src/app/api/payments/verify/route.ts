@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
-import { getAdminAuth, adminReady } from "@/lib/firebaseAdmin";
+import { verifyUid, adminReady, bearer } from "@/lib/supabaseAdmin";
 import { activatePlanServer } from "@/lib/entitlementServer";
 import { tierById } from "@/lib/pricing";
 
@@ -43,17 +43,11 @@ export async function POST(req: NextRequest) {
   if (!ok) return NextResponse.json({ error: "Signature verification failed" }, { status: 400 });
 
   // Attribute the plan to the signed-in user.
-  const auth = getAdminAuth();
-  const token = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
-  if (!adminReady() || !auth || !token) {
-    // Payment verified but we can't persist server-side (Firebase Admin missing).
+  const uid = adminReady() ? await verifyUid(bearer(req)) : null;
+  if (!uid) {
+    // Payment verified but we can't persist server-side (Supabase admin missing / no session).
     return NextResponse.json({ ok: true, persisted: false, tier: tier.id });
   }
-  try {
-    const { uid } = await auth.verifyIdToken(token);
-    await activatePlanServer(uid, tier.id);
-    return NextResponse.json({ ok: true, persisted: true, tier: tier.id });
-  } catch {
-    return NextResponse.json({ ok: true, persisted: false, tier: tier.id });
-  }
+  await activatePlanServer(uid, tier.id);
+  return NextResponse.json({ ok: true, persisted: true, tier: tier.id });
 }

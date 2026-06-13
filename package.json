@@ -15,9 +15,8 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.65.0",
     "@octokit/rest": "^21.1.1",
+    "@supabase/supabase-js": "^2.45.0",
     "cheerio": "^1.0.0",
-    "firebase": "^11.10.0",
-    "firebase-admin": "^13.4.0",
     "framer-motion": "^12.23.0",
     "gsap": "^3.13.0",
     "jszip": "^3.10.1",

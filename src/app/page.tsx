@@ -111,7 +111,7 @@ export default function Home() {
       </section>
 
       <footer className="border-t border-white/5 px-6 py-10 text-center text-sm text-white/30">
-        MarketStack · Next.js + Tailwind + Framer Motion · GSAP ScrollTrigger + Lenis · Node + Firebase · Claude
+        MarketStack · Next.js + Tailwind + Framer Motion · GSAP ScrollTrigger + Lenis · Node + Supabase · Claude
       </footer>
     </main>
   );

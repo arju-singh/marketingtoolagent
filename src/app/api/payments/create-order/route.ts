@@ -1,19 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { tierById } from "@/lib/pricing";
-import { getAdminAuth } from "@/lib/firebaseAdmin";
+import { verifyUid, bearer } from "@/lib/supabaseAdmin";
 
 export const runtime = "nodejs";
-
-async function uidFrom(req: NextRequest): Promise<string | null> {
-  const token = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
-  const auth = getAdminAuth();
-  if (!token || !auth) return null;
-  try {
-    return (await auth.verifyIdToken(token)).uid;
-  } catch {
-    return null;
-  }
-}
 
 // Creates a Razorpay order for the chosen tier. When Razorpay keys aren't set,
 // returns { simulated: true } so the dev/demo flow still completes without a gateway.
@@ -37,7 +26,7 @@ export async function POST(req: NextRequest) {
   const amount = tier.price * 100; // paise
   const auth = Buffer.from(`${keyId}:${keySecret}`).toString("base64");
   // Embed who this is for, so the webhook can activate the plan without the browser.
-  const uid = await uidFrom(req);
+  const uid = await verifyUid(bearer(req));
 
   try {
     const res = await fetch("https://api.razorpay.com/v1/orders", {

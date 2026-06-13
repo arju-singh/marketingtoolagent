@@ -27,7 +27,7 @@ function StepVisual({ i }: { i: number }) {
   if (i === 1)
     return (
       <div className="space-y-2.5 text-sm">
-        {["12 features extracted", "tech stack: React, Node, Firebase", "SEO crawl complete", "ProductContext built"].map((t, k) => (
+        {["12 features extracted", "tech stack: React, Node, Supabase", "SEO crawl complete", "ProductContext built"].map((t, k) => (
           <div key={k} className="flex items-center gap-2 text-white/70">
             <span className="grid h-4 w-4 place-items-center rounded-full bg-accent2/20 text-[10px] text-accent2">✓</span>
             {t}

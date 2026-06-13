@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { TIERS, CURRENCY, type Tier } from "@/lib/pricing";
-import { getFirebaseAuth } from "@/lib/firebase";
 import { useAuth } from "@/lib/auth";
 
 // Minimal shape of the Razorpay checkout we use.
@@ -29,29 +28,21 @@ function loadRazorpay(): Promise<boolean> {
   });
 }
 
-async function idToken(): Promise<string | null> {
-  try {
-    return (await getFirebaseAuth()?.currentUser?.getIdToken()) || null;
-  } catch {
-    return null;
-  }
-}
-
 // Shown when the free run is used up. onPaid(tier) fires after a verified (or simulated) payment.
 export default function Paywall({ onPaid, onClose }: { onPaid: (tier: Tier) => void; onClose: () => void }) {
   const [paying, setPaying] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const { user, enabled: authEnabled, signIn } = useAuth();
-  // When Firebase is on, require sign-in so the plan is attributed to a real user.
+  const { user, enabled: authEnabled, signIn, token } = useAuth();
+  // When Supabase is on, require sign-in so the plan is attributed to a real user.
   const needSignIn = authEnabled && !user;
 
   async function buy(tier: Tier) {
     setError(null);
     setPaying(tier.id);
     try {
-      const token = await idToken();
+      const tok = await token().catch(() => null);
       const headers: Record<string, string> = { "content-type": "application/json" };
-      if (token) headers.authorization = `Bearer ${token}`;
+      if (tok) headers.authorization = `Bearer ${tok}`;
 
       const res = await fetch("/api/payments/create-order", {
         method: "POST",

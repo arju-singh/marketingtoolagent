@@ -11,7 +11,6 @@ import { downloadZip, downloadCombinedMarkdown } from "@/lib/export";
 import Paywall from "@/components/Paywall";
 import { getPlan, getRuns, hasAccess, recordRun, setPlan, syncDown } from "@/lib/usage";
 import { FREE_RUNS, tierById, type Tier } from "@/lib/pricing";
-import { getFirebaseAuth } from "@/lib/firebase";
 
 type Phase = "input" | "ingesting" | "configure" | "results";
 interface RequestedSkill { key: string; name: string }
@@ -33,11 +32,11 @@ export default function AppTool() {
   const [showPaywall, setShowPaywall] = useState(false);
   const [entitle, setEntitle] = useState<{ free: boolean; plan: string | null }>({ free: true, plan: null });
   const pendingOpts = useRef<{ everything?: boolean } | null>(null);
-  const { user, enabled: authEnabled } = useAuth();
+  const { user, enabled: authEnabled, token: getToken } = useAuth();
 
-  // Reconcile entitlement from Firestore when a user signs in.
+  // Reconcile entitlement from Supabase when a user signs in.
   useEffect(() => {
-    if (user) void syncDown(user.uid);
+    if (user) void syncDown(user.id);
   }, [user]);
 
   // Read entitlement after mount (avoids hydration mismatch) and after phase/paywall changes.
@@ -100,8 +99,8 @@ export default function AppTool() {
     const collected: Deliverable[] = [];
     try {
       const headers: Record<string, string> = { "content-type": "application/json" };
-      const token = await getFirebaseAuth()?.currentUser?.getIdToken().catch(() => null);
-      if (token) headers.authorization = `Bearer ${token}`;
+      const tok = await getToken().catch(() => null);
+      if (tok) headers.authorization = `Bearer ${tok}`;
 
       const res = await fetch("/api/generate/stream", {
         method: "POST",
@@ -147,10 +146,10 @@ export default function AppTool() {
       setStreaming(false);
       if (streamErr && collected.length === 0) throw new Error(streamErr);
       if (streamErr) setError(streamErr);
-      if (collected.length) recordRun(user?.uid); // count this run against the free quota
+      if (collected.length) recordRun(user?.id); // count this run against the free quota
       if (user && collected.length) {
         setSaved("saving");
-        saveRun(user.uid, ctx, collected)
+        saveRun(user.id, ctx, collected)
           .then((id) => setSaved(id ? "saved" : "idle"))
           .catch(() => setSaved("idle"));
       }
@@ -169,7 +168,7 @@ export default function AppTool() {
 
   // After a (simulated) successful payment: unlock and resume the pending generation.
   function onPaid(tier: Tier) {
-    setPlan(tier.id, user?.uid);
+    setPlan(tier.id, user?.id);
     setShowPaywall(false);
     const opts = pendingOpts.current || {};
     pendingOpts.current = null;
