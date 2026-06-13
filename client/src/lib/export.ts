@@ -1,5 +1,3 @@
-
-import JSZip from "jszip";
 import type { ProductContext, Deliverable } from "./types";
 
 function slug(s: string): string {
@@ -42,6 +40,8 @@ export function downloadCombinedMarkdown(ctx: ProductContext, deliverables: Deli
 
 /** One .md file per deliverable, zipped, plus a combined file and the raw context. */
 export async function downloadZip(ctx: ProductContext, deliverables: Deliverable[]) {
+  // jszip is loaded on demand (only when the user exports a .zip) — keeps it out of the main bundle.
+  const { default: JSZip } = await import("jszip");
   const zip = new JSZip();
   const folder = zip.folder("deliverables")!;
   for (const d of deliverables) {

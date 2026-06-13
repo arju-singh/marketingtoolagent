@@ -1,7 +1,4 @@
-
 import { useEffect, useRef } from "react";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 const STEPS = [
   { n: "01", title: "Paste your repo + domain", body: "Drop a GitHub URL and your live site. That's the entire input." },
@@ -66,43 +63,50 @@ export default function ScrollStory() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    gsap.registerPlugin(ScrollTrigger);
 
-    const ctx = gsap.context(() => {
-      const panels = gsap.utils.toArray<HTMLElement>(".story-panel");
-      const total = panels.length;
+    // GSAP is dynamically imported (code-split) and shared with SmoothScroll's chunk.
+    let revert = () => {};
+    let cancelled = false;
 
-      // Pin the whole section for `total` screens of scroll.
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: root.current,
-          start: "top top",
-          end: () => `+=${total * 100}%`,
-          scrub: 0.8,
-          pin: true,
-          anticipatePin: 1,
-        },
-      });
+    (async () => {
+      const [{ gsap }, { ScrollTrigger }] = await Promise.all([import("gsap"), import("gsap/ScrollTrigger")]);
+      if (cancelled) return;
+      gsap.registerPlugin(ScrollTrigger);
 
-      panels.forEach((panel, i) => {
-        if (i === 0) {
-          gsap.set(panel, { autoAlpha: 1, y: 0 });
-        } else {
-          tl.fromTo(
-            panel,
-            { autoAlpha: 0, y: 40 },
-            { autoAlpha: 1, y: 0, duration: 0.4 }
-          );
-        }
-        if (i < total - 1) {
-          tl.to(panel, { autoAlpha: 0, y: -40, duration: 0.4 }, "+=0.4");
-        }
-        // Progress bar fill.
-        tl.to(".story-progress-fill", { scaleX: (i + 1) / total, duration: 0.1 }, "<");
-      });
-    }, root);
+      const ctx = gsap.context(() => {
+        const panels = gsap.utils.toArray<HTMLElement>(".story-panel");
+        const total = panels.length;
 
-    return () => ctx.revert();
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: root.current,
+            start: "top top",
+            end: () => `+=${total * 100}%`,
+            scrub: 0.8,
+            pin: true,
+            anticipatePin: 1,
+          },
+        });
+
+        panels.forEach((panel, i) => {
+          if (i === 0) {
+            gsap.set(panel, { autoAlpha: 1, y: 0 });
+          } else {
+            tl.fromTo(panel, { autoAlpha: 0, y: 40 }, { autoAlpha: 1, y: 0, duration: 0.4 });
+          }
+          if (i < total - 1) {
+            tl.to(panel, { autoAlpha: 0, y: -40, duration: 0.4 }, "+=0.4");
+          }
+          tl.to(".story-progress-fill", { scaleX: (i + 1) / total, duration: 0.1 }, "<");
+        });
+      }, root);
+      revert = () => ctx.revert();
+    })();
+
+    return () => {
+      cancelled = true;
+      revert();
+    };
   }, []);
 
   return (
