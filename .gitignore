@@ -12,6 +12,10 @@ out
 
 .DS_Store
 *.log
+.render-api-key
+.vercel-token
+.vercel
+*.key
 serviceAccountKey.json
 *.pem
 *-service-account.json
